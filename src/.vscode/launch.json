@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "cppdbg",
+      "request": "launch",
+      "args": [],
+      "stopAtEntry": false,
+      "externalConsole": true,
+      "cwd": "c:/Users/phuong/Downloads/VGU_PlatformIO-2ee1403fa8e1da028a960bb193351e740379d377/VGU_PlatformIO-2ee1403fa8e1da028a960bb193351e740379d377/src",
+      "program": "c:/Users/phuong/Downloads/VGU_PlatformIO-2ee1403fa8e1da028a960bb193351e740379d377/VGU_PlatformIO-2ee1403fa8e1da028a960bb193351e740379d377/src/build/Debug/outDebug",
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ]
+}
