@@ -16,23 +16,14 @@ void TIMER_ISR(void *pvParameters) {
   }
 }
 
-void setup() {
-    Serial.begin(115200);
-    pinMode(GPIO_NUM_48, OUTPUT); // Initialize LED pin
-    
-    // Initialize sensors and devices
-    HTSensor_Init();
-    Heater_Init();
-    
+void setup() { 
     SCH_Init();
     SCH_Add_Task(Timer_Run, 0, 1);
     SCH_Add_Task(LED_Blinky, 0, 100);
-    SCH_Add_Task(HTSensor_Read, 0, 500); // Read every 5 seconds (500 ticks * 10ms = 5000ms)
-    SCH_Add_Task(Heater_Run, 0, 100); // Check heater status every second
-    // SCH_Add_Task(Humidifier_Run, 0, 1);
-    // SCH_Add_Task(Cooler_Run, 0, 1);
-    
-    Serial.println("System initialized successfully!");
+    SCH_Add_Task(HTSensor_Run, 0, 500);
+    SCH_Add_Task(Heater_Run, 0, 100);
+    SCH_Add_Task(Cooler_Run, 0, 100);
+    SCH_Add_Task(Humidifier_Run, 0, 100);
 }
 
 void loop() {

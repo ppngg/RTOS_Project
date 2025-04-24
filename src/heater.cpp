@@ -1,31 +1,63 @@
 #include "heater.h"
 #include "htsensor.h"
+#include "software_timer.h"
 #include <iostream>
 // GPIO_NUM_6 -> D3
 // GPIO_NUM_7 -> D4
-void Heater_Init(void) {
-    pinMode(GPIO_NUM_6, OUTPUT);
-    pinMode(GPIO_NUM_7, OUTPUT);
-    digitalWrite(GPIO_NUM_6, 0);
-    digitalWrite(GPIO_NUM_7, 0);
-}
+static int state = HEATER_INIT;
 
-void Heater_Run(void) {
-    float temp = currentTemperature;
-    std::cout << "Current temp: " << temp << "\n";
-    if (temp >= TEMP_SAFE_MIN && temp <= TEMP_SAFE_MAX) {
-        // Safe range: GREEN
-        digitalWrite(GPIO_NUM_6, 1);
-        digitalWrite(GPIO_NUM_7, 0);
-    } 
-    else if (temp >= TEMP_MIN && temp < TEMP_SAFE_MIN) {
-        // Warning range: ORANGE
-        digitalWrite(GPIO_NUM_6, 0);
-        digitalWrite(GPIO_NUM_7, 1);
-    }
-    else {
-        // Danger range: RED
-        digitalWrite(GPIO_NUM_6, 1);
-        digitalWrite(GPIO_NUM_7, 1);
+void Heater_Run(void) {    
+    switch (state) {
+        case HEATER_INIT:
+            pinMode(GPIO_NUM_6, OUTPUT);  // D3
+            pinMode(GPIO_NUM_7, OUTPUT);  // D4
+            digitalWrite(GPIO_NUM_6, 0);
+            digitalWrite(GPIO_NUM_7, 0);
+            Set_Timer(3, 100);
+            state = HEATER_GREEN;
+            break;
+
+        case HEATER_GREEN:
+            if (Is_Timer_Expired(3) != 1) {break;}
+            Set_Timer(3, 100);
+            digitalWrite(GPIO_NUM_6, 1);
+            digitalWrite(GPIO_NUM_7, 0);
+            
+            // Check for transitions
+            if (currentTemperature >= TEMP_LOW && currentTemperature <= TEMP_HIGH) {
+                state = HEATER_YELLOW;
+            }
+            else if (currentTemperature> TEMP_HIGH) {
+                state = HEATER_RED;
+            }
+            break;
+
+        case HEATER_YELLOW:
+            if (Is_Timer_Expired(3) != 1) {break;}
+            Set_Timer(3, 100);
+            digitalWrite(GPIO_NUM_6, 0);
+            digitalWrite(GPIO_NUM_7, 1);
+            if (currentTemperature < TEMP_LOW) {
+                state = HEATER_GREEN;
+            }
+            else if (currentTemperature > TEMP_HIGH) {
+                state = HEATER_RED;
+            }
+            break;
+
+        case HEATER_RED:
+            if (Is_Timer_Expired(3) != 1) {break;}
+            Set_Timer(3, 100);
+            digitalWrite(GPIO_NUM_6, 1);
+            digitalWrite(GPIO_NUM_7, 1);
+            
+            // Check for transitions
+            if (currentTemperature < TEMP_LOW) {
+                state = HEATER_GREEN;
+            }
+            else if (currentTemperature >= TEMP_LOW && currentTemperature <= TEMP_HIGH) {
+                state = HEATER_YELLOW;
+            }
+        break;
     }
 }
